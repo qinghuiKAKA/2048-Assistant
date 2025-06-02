@@ -1,4 +1,4 @@
-# 2048-Assistant
+# 2048-Assistant 2048助手
 2048论坛直接预览帖子内图片，过滤低质量帖子
 
 这是一个油猴脚本，需要基于电脑网页端的tampermonkey，tampermonkeybeta，暴力猴或者手机端的X浏览器等支持脚本语言的环境。
