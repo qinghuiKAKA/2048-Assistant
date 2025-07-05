@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         2048助手
-// @description  2048论坛直接预览帖子内图片，过滤低质量帖子
-// @version      1.0.1
+// @description  2048论坛直接预览帖子内图片和金币，过滤低质量帖子
+// @version      1.0.2
 // @author       qinghuiKAKA
 // @namespace    hjd2048.com
 // @match        *://hjd2048.com/*
@@ -68,6 +68,32 @@
         headers: headers,
         onload: function (result) {
           var doc = result.responseText;
+
+          var goldSet = new Set(); // 存储去重的金币字符串
+          // 查找金币字符串（优先在.f14.cc内查找）
+          $(doc).find(".f14.cc *").addBack().contents().filter(function() {
+            return this.nodeType === 3; // 只处理文本节点
+          }).each(function() {
+            const text = this.nodeValue;
+            const matches = text.match(/\d+金币/g);
+            if (matches) matches.forEach(m => goldSet.add(m));
+          });
+          // 如果.f14.cc中没找到，全局查找
+          if (goldSet.size === 0) {
+            $(doc).find("*").contents().filter(function() {
+              return this.nodeType === 3;
+            }).each(function() {
+              const text = this.nodeValue;
+              const matches = text.match(/\d+金币/g);
+              if (matches) matches.forEach(m => goldSet.add(m));
+            });
+          }
+          // 添加金币信息
+          if (goldSet.size > 0) {
+            const goldText = Array.from(goldSet).join("，"); // 中文逗号分隔
+            thattd.append(`<div style="margin-top: 5px;padding: 3px 8px;background: #fff9e6;border: 1px solid #ffd700;border-radius: 4px;display: inline-block;font-weight: bold;color: #d48806;">${goldText}</div>`);
+          }
+
           //查找所有子元素的图片，不含无关的图片，有data-original就选data-original
           $(doc).find(".f14.cc img:not([align='absmiddle'])").each(function (index) {
                 if (index == 0) {
@@ -96,6 +122,8 @@
                       "' />"
                   );
                 });
+
+
         }
       });
     }
